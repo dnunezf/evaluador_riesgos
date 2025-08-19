@@ -177,7 +177,7 @@ function barraHTML(float $porcSi, string $etiquetaColor, float $porcNo = null)
         </div>
 
         <!-- Botón para volver al formulario -->
-        <a href="evaluacion.php" class="btn-volver">⬅ Volver al formulario</a>
+        <a href="run.php" class="btn-volver">⬅ Volver al formulario</a>
     </div>
 </body>
 
