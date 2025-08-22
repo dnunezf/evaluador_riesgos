@@ -82,11 +82,11 @@ function barraHTML(float $porcSi, string $etiquetaColor, float $porcNo = null)
 {
     $porcSi = max(0, min(100, $porcSi));
     if ($porcNo === null) $porcNo = round(100 - $porcSi, 1);
-    $left = $porcSi; // Flecha en %Sí
+    $left = max(0.5, min(97, $porcSi));
     return '
     <div class="progress">
         <div class="gradient"></div>
-        <div class="marker" style="left: calc(' . $left . '% - 6px);" title="' . $porcSi . '% Sí"></div>
+        <div class="marker" style="left: ' . $left . '%;" title="' . $porcSi . '% Sí"></div>
     </div>
     <div class="leyenda ' . $etiquetaColor . '">Evaluación: ' . ucfirst($etiquetaColor) . ' (' . $porcNo . '% No)</div>';
 }

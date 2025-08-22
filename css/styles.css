@@ -255,14 +255,15 @@ tr:hover td {
 }
 .marker {
   position: absolute;
-  top: -18px; /* la subimos un poco más porque ahora es más grande */
+  top: -18px;
   width: 0;
   height: 0;
-  border-left: 25px solid transparent;   /* más ancha */
+  border-left: 25px solid transparent;
   border-right: 25px solid transparent;
-  border-top: 24px solid #111;           /* más alta */
+  border-top: 24px solid #111;
   filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));
   z-index: 2;
+  transform: translateX(-50%); /* <<< centra la flecha exactamente en su % */
 }
 .leyenda {
   font-size: 0.95rem;
@@ -327,4 +328,22 @@ tr:hover td {
 
 #semaphore {
   transition: background 0.3s ease;
+}
+
+/* Resaltado de fila con error */
+.re-row.error {
+  outline: 2px solid #e74c3c;         /* borde rojo visible */
+  background: #ffecec;                 /* fondo rosado leve */
+  scroll-margin-top: 80px;             /* para que no quede pegado al borde al hacer scroll */
+}
+/* Mensaje de error */
+.error-msg {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: #ffd1d1;
+  color: #7a0c0c;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
