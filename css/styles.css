@@ -255,12 +255,14 @@ tr:hover td {
 }
 .marker {
   position: absolute;
-  top: -6px;
+  top: -18px; /* la subimos un poco más porque ahora es más grande */
   width: 0;
   height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-bottom: 10px solid #111;
+  border-left: 25px solid transparent;   /* más ancha */
+  border-right: 25px solid transparent;
+  border-top: 24px solid #111;           /* más alta */
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));
+  z-index: 2;
 }
 .leyenda {
   font-size: 0.95rem;
