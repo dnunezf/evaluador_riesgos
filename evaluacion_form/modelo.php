@@ -1,6 +1,6 @@
 <?php
 // Funciones de acceso a datos
-require_once './config/config.php';
+require_once __DIR__ . '/../config/config.php';
 
 // Obtener todas las tareas (actividades)
 function getTareas()

@@ -19,7 +19,7 @@ $normaSeleccionada = isset($_GET['norma']) ? (int)$_GET['norma'] : 0;
 <head>
     <meta charset="UTF-8">
     <title>Formulario de Evaluación de Control Interno</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
     <!-- Estilos para avisos y resaltado de errores -->
     <style>
         .re-row.error {

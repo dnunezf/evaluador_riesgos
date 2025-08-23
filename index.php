@@ -98,7 +98,7 @@
             <div class="card">
                 <p style="margin:.2rem 0;">📍 Nuestro producto está disponible en la siguiente dirección:</p>
                 <p style="margin:.2rem 0;">
-                    👉 <a href="run.php">Abrir evaluación</a>
+                    👉 <a href="evaluacion_form/run.php">Abrir evaluación</a>
                 </p>
             </div>
         </section>
@@ -152,7 +152,7 @@
             <!-- CTA -->
             <div class="card home-cta-card">
                 <p style="margin:0;">¿Listo para probarlo?</p>
-                <a class="btn-volver" href="run.php">Abrir evaluación</a>
+                <a class="btn-volver" href="evaluacion_form/run.php">Abrir evaluación</a>
             </div>
         </section>
     </main>

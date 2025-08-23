@@ -97,7 +97,7 @@ function barraHTML(float $porcSi, string $etiquetaColor, float $porcNo = null)
 <head>
     <meta charset="UTF-8">
     <title>Resultados de Evaluación</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 
 <body>

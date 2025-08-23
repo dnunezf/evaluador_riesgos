@@ -772,3 +772,26 @@ INSERT INTO Re_Ri (REId, RIId) VALUES
 (2115,1),(2115,2),
 (2116,2),(2116,1),
 (2117,2);
+
+-- monitor_config: estos son los parámetros del monitor
+CREATE TABLE IF NOT EXISTS monitor_config (
+  id TINYINT PRIMARY KEY DEFAULT 1,
+  critico_pct DECIMAL(5,2) NOT NULL DEFAULT 80.00,   -- umbral %
+  delay_seg   INT NOT NULL DEFAULT 5,                -- intervalo en s
+  habilitado  TINYINT NOT NULL DEFAULT 1
+);
+
+INSERT INTO monitor_config (id) VALUES (1)
+ON DUPLICATE KEY UPDATE id=id;
+
+-- consumo_critico: estos son los eventos
+CREATE TABLE IF NOT EXISTS consumo_critico (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  fecha DATE NOT NULL,
+  hora  TIME NOT NULL,
+  proceso VARCHAR(100) NOT NULL,
+  usuario VARCHAR(100) NOT NULL,
+  sql_text TEXT NOT NULL,
+  consumo_pct DECIMAL(5,2) NOT NULL,
+  detalles TEXT NULL
+);
