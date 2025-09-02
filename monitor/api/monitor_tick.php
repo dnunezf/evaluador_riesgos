@@ -1,21 +1,38 @@
 <?php
-// api/monitor_tick.php
+// api/monitor_tick.php — Devuelve el último snapshot (ts, consumo_pct) y evalúa crítico= (>=85)
 header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../modelo_monitor.php';
+require_once dirname(__DIR__, 2) . '/config/monitor_config.php';
 
-$config  = monitor_get_config();
-$metric  = monitor_calc_consumo();
-$critico = ($metric['consumo_pct'] >= (float)$config['critico_pct']);
+$umbral = 85;  // fijo para tu práctica
+$conn = ora_conn();
 
-if ($config['habilitado'] && $critico) {
-    monitor_log_evento($metric['consumo_pct'], $metric['sql_text']);
+// Lee el último punto
+$sql = "SELECT ts, consumo_pct FROM " . ORA_OWNER . ".mon_buffer_snapshot
+        ORDER BY id DESC FETCH FIRST 1 ROWS ONLY";
+$st = oci_parse($conn, $sql);
+oci_execute($st);
+$row = oci_fetch_assoc($st);
+oci_free_statement($st);
+oci_close($conn);
+
+if (!$row) {
+    echo json_encode([
+        'ts' => null, 'consumo_pct' => 0.0, 'umbral_pct' => $umbral, 'critico' => 0,
+        'msg' => 'Sin datos. Ejecuta SGA_PLOTE para generar snapshots.'
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
+// Formatea ISO 8601 para Chart.js
+$ts = $row['TS']; // viene como objeto de fecha OCI
+$ts_iso = date('c', strtotime($ts));
+
+$consumo = (float)$row['CONSUMO_PCT'];
+$critico = ($consumo >= $umbral) ? 1 : 0;
+
 echo json_encode([
-    'ts'           => date('c'),
-    'consumo_pct'  => $metric['consumo_pct'],
-    'umbral_pct'   => (float)$config['critico_pct'],
-    'critico'      => $critico ? 1 : 0,
-    'delay_seg'    => (int)$config['delay_seg'],
-    'habilitado'   => (int)$config['habilitado']
-]);
+    'ts'          => $ts_iso,
+    'consumo_pct' => $consumo,
+    'umbral_pct'  => $umbral,
+    'critico'     => $critico
+], JSON_UNESCAPED_UNICODE);
