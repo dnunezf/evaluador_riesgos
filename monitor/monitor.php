@@ -39,7 +39,7 @@
 
 <script>
     // ===== Ajustes =====
-    const endpoint = 'api/monitor_tick.php'; // o 'api/monitor_tick.php' si ya lees Oracle
+    const endpoint = 'api/monitor_tick_remote.php';// o 'api/monitor_tick.php' si ya lees Oracle
     const UMBRAL     = 85;
     const TICK_MS    = 1000;       // 1s para probar; sube a 5000 en real
     const WINDOW_SEC = 120;        // ventana visible de 120 s

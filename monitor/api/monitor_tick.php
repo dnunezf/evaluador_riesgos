@@ -3,7 +3,7 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once dirname(__DIR__, 2) . '/config/monitor_config.php';
 
-$umbral = 85;  // fijo para tu práctica
+$umbral = 30;  // fijo para tu práctica
 $conn = ora_conn();
 
 // Lee el último punto
