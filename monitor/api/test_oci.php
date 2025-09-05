@@ -37,7 +37,6 @@ try {
 
     oci_close($conn);
     echo "Todo bien ✅";
-
 } catch (Exception $ex) {
     http_response_code(500);
     echo "ERROR: " . htmlspecialchars($ex->getMessage());

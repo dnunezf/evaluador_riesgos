@@ -8,7 +8,7 @@ $conn = ora_conn();
 // Parámetros: ?cliente=ClienteLocal&range_min=30
 $cliente  = isset($_GET['cliente']) ? trim($_GET['cliente']) : '';
 $rangeMin = isset($_GET['range_min']) ? (int)$_GET['range_min'] : 30;
-if ($rangeMin <= 0 || $rangeMin > 7*24*60) $rangeMin = 30;
+if ($rangeMin <= 0 || $rangeMin > 7 * 24 * 60) $rangeMin = 30;
 
 // Si no mandan cliente, tomamos el más reciente automáticamente
 if ($cliente === '') {
@@ -22,7 +22,7 @@ if ($cliente === '') {
     if ($rC && !empty($rC['CLIENTE'])) {
         $cliente = $rC['CLIENTE'];
     } else {
-        echo json_encode(['cliente'=>null,'points'=>[],'msg'=>'Sin datos'], JSON_UNESCAPED_UNICODE);
+        echo json_encode(['cliente' => null, 'points' => [], 'msg' => 'Sin datos'], JSON_UNESCAPED_UNICODE);
         oci_close($conn);
         exit;
     }
@@ -47,4 +47,4 @@ while ($r = oci_fetch_assoc($st)) {
 oci_free_statement($st);
 oci_close($conn);
 
-echo json_encode(['cliente'=>$cliente, 'range_min'=>$rangeMin, 'points'=>$pts], JSON_UNESCAPED_UNICODE);
+echo json_encode(['cliente' => $cliente, 'range_min' => $rangeMin, 'points' => $pts], JSON_UNESCAPED_UNICODE);

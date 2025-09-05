@@ -1,38 +1,49 @@
 <?php
-// api/monitor_tick.php — Devuelve el último snapshot (ts, consumo_pct) y evalúa crítico= (>=85)
 header('Content-Type: application/json; charset=utf-8');
 require_once dirname(__DIR__, 2) . '/config/monitor_config.php';
+$clients = require dirname(__DIR__, 2) . '/config/monitor_clients.php';
 
-$umbral = 30;  // fijo para tu práctica
+$cliente = isset($_GET['cliente']) ? trim($_GET['cliente']) : '';
+$umbral  = (int)($clients[$cliente]['umbral'] ?? 30);
+
 $conn = ora_conn();
+if ($cliente === '') {
+    $sqlC = "SELECT cliente FROM " . ORA_OWNER . ".mon_buffer_snapshot
+           ORDER BY id DESC FETCH FIRST 1 ROWS ONLY";
+    $stC = oci_parse($conn, $sqlC);
+    oci_execute($stC);
+    $rC = oci_fetch_assoc($stC);
+    oci_free_statement($stC);
+    $cliente = $rC['CLIENTE'] ?? null;
+}
 
-// Lee el último punto
+if (!$cliente) {
+    echo json_encode(['ts' => null, 'consumo_pct' => 0.0, 'umbral_pct' => $umbral, 'critico' => 0, 'msg' => 'Sin datos'], JSON_UNESCAPED_UNICODE);
+    oci_close($conn);
+    exit;
+}
+
 $sql = "SELECT ts, consumo_pct FROM " . ORA_OWNER . ".mon_buffer_snapshot
+        WHERE cliente = :c
         ORDER BY id DESC FETCH FIRST 1 ROWS ONLY";
 $st = oci_parse($conn, $sql);
+oci_bind_by_name($st, ':c', $cliente);
 oci_execute($st);
 $row = oci_fetch_assoc($st);
 oci_free_statement($st);
 oci_close($conn);
 
 if (!$row) {
-    echo json_encode([
-        'ts' => null, 'consumo_pct' => 0.0, 'umbral_pct' => $umbral, 'critico' => 0,
-        'msg' => 'Sin datos. Ejecuta SGA_PLOTE para generar snapshots.'
-    ], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['ts' => null, 'consumo_pct' => 0.0, 'umbral_pct' => $umbral, 'critico' => 0, 'msg' => 'Sin datos'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// Formatea ISO 8601 para Chart.js
-$ts = $row['TS']; // viene como objeto de fecha OCI
-$ts_iso = date('c', strtotime($ts));
-
+$ts_iso = date('c', strtotime($row['TS']));
 $consumo = (float)$row['CONSUMO_PCT'];
-$critico = ($consumo >= $umbral) ? 1 : 0;
-
 echo json_encode([
-    'ts'          => $ts_iso,
-    'consumo_pct' => $consumo,
-    'umbral_pct'  => $umbral,
-    'critico'     => $critico
+    'cliente'      => $cliente,
+    'ts'           => $ts_iso,
+    'consumo_pct'  => $consumo,
+    'umbral_pct'   => $umbral,
+    'critico'      => ($consumo >= $umbral) ? 1 : 0
 ], JSON_UNESCAPED_UNICODE);

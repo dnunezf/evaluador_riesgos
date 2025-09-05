@@ -23,6 +23,7 @@
                 <a href="#vision">Visión del producto</a>
                 <a href="#ubicacion">Donde encontrar el producto</a>
                 <a href="#producto">Información sobre el producto</a>
+                <a href="monitor/monitor.php">Monitor de BD</a>
             </nav>
         </div>
     </header>
