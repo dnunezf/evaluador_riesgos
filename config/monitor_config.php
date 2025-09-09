@@ -1,33 +1,27 @@
 <?php
-// config_oracle.php — Ajusta DSN/usuario/clave y el esquema dueño de las tablas.
-//const ORA_DSN   = 'localhost:1521/XEPDB1';   // o tu servicio: localhost:1521/ORCLPDB1
-//const ORA_USER  = 'SYS';                     // si creaste tablas como SYS (académico)
-//const ORA_PASS  = 'root';
-//const ORA_ROLE  = 'AS SYSDBA';               // si usas SYS
-//const ORA_OWNER = 'SYS';                     // esquema dueño de MON_BUFFER_SNAPSHOT
+// monitor_config.php — OWNER y conexión en XEPDB1 con SYSTEM
 
+define('ORA_OWNER', 'SYSTEM');                 // Las tablas viven en SYSTEM (XEPDB1)
+define('ORA_USER',  'SYSTEM');                 // Usuario técnico
+define('ORA_PASS',  'root');     // <-- AJUSTA AQUÍ
+define('ORA_DSN',   'localhost:1521/XEPDB1');  // EZCONNECT a la PDB XEPDB1
 
-// config/monitor_config.php — conexión del monitor a Oracle
-
-// Datos de conexión a tu PDB local
-const ORA_DSN   = 'localhost:1521/xepdb1';   // servicio que viste en lsnrctl status
-const ORA_USER  = 'CLIENTE_SIM';             // tu usuario normal (ojo: en mayúsculas)
-const ORA_PASS  = 'ClaveSim#2025';           // contraseña de cliente_sim
-const ORA_OWNER = 'SYS';             // dueño de MON_BUFFER_SNAPSHOT y MON_ALERTA
+define('ORA_CALL_TIMEOUT_MS', 5000);
+define('ORA_PREFER_SESSION_CREDS', false);     // Forzar siempre usuario técnico
 
 function ora_conn() {
-    // Conexión normal SIN SYSDBA
-    $c = @oci_pconnect(ORA_USER, ORA_PASS, ORA_DSN, 'AL32UTF8');
-    if (!$c) {
-        $e = oci_error();
-        http_response_code(500);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode([
-            'error'  => 'Oracle connect failed',
-            'detail' => $e['message'] ?? ''
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
+    $c = @oci_connect(ORA_USER, ORA_PASS, ORA_DSN);
+    if ($c && function_exists('oci_set_call_timeout') && ORA_CALL_TIMEOUT_MS > 0) {
+        @oci_set_call_timeout($c, ORA_CALL_TIMEOUT_MS);
     }
     return $c;
 }
 
+function ora_username($conn) {
+    $st = @oci_parse($conn, "SELECT USER FROM dual");
+    if ($st && @oci_execute($st)) {
+        $r = oci_fetch_array($st, OCI_NUM);
+        if ($r && isset($r[0])) return $r[0];
+    }
+    return null;
+}
