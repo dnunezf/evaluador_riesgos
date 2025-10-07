@@ -22,6 +22,7 @@
                 <a href="#integrantes">Acerca de nosotros</a>
                 <a href="#vision">Visión del producto</a>
                 <a href="#ubicacion">Donde encontrar el producto</a>
+                <a href="rman_module/index.php">RMAN Backups</a>
                 <a href="#producto">Información sobre el producto</a>
             </nav>
         </div>
@@ -99,6 +100,9 @@
                 <p style="margin:.2rem 0;">📍 Nuestro producto está disponible en la siguiente dirección:</p>
                 <p style="margin:.2rem 0;">
                     👉 <a href="evaluacion_form/run.php">Abrir evaluación</a>
+                </p>
+                <p style="margin:.2rem 0;">
+                    👉 <a href="rman_module/index.php">Abrir módulo RMAN Backups</a>
                 </p>
             </div>
         </section>
