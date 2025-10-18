@@ -36,13 +36,23 @@ if ($st['TYPE'] === 'PARTIAL' && !empty($st['OBJECT_SCOPE'])) {
     if (!empty($obj['datafiles']))   $pieces[] = 'DATAFILE ' . implode(', ', array_map('intval', $obj['datafiles']));
     $objectList = implode(' ', $pieces);
 }
+
+
+$user = $config['rman']['username'];   // C##RMAN
+$pass = $config['rman']['password'];   // rman_pass
+$tns  = $config['rman']['tns'];        // localhost/xe  (servicio ROOT, CON_ID=1)
+
+$rmanConnect = $user . '/' . $pass . '@' . $tns; // SIN "AS SYSBACKUP", sin comillas
+
 $scriptText = strtr($tpl, [
-    '{COMPRESSION}' => $compression,
-    '{INCLUDE_ARCHIVE}' => $incArch,
+    '{COMPRESSION}'        => $compression,
+    '{INCLUDE_ARCHIVE}'    => $incArch,
     '{CONTROLFILE_BACKUP}' => $ctrlCmd,
-    '{OBJECT_LIST}' => $objectList,
-    '{OUTPUT_DIR}' => $st['OUTPUT_DIR'],
+    '{OBJECT_LIST}'        => $objectList,
+    '{OUTPUT_DIR}'         => $st['OUTPUT_DIR'],
+    '{RMAN_CONNECT}'       => $rmanConnect,   // 👈 AÑADIDO
 ]);
+
 
 $scriptPath = $work . '/' . $st['CODE'];
 $logPath    = $work . '/' . preg_replace('/\.rma[n]?$/i', '.log', $st['CODE']);
