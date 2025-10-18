@@ -116,7 +116,7 @@ $datafiles   = $db->query("SELECT FILE_ID, FILE_NAME FROM DBA_DATA_FILES ORDER B
 
             <div>
                 <button class="button primary" type="submit">Save Strategy</button>
-                <a class="button" href="index.php">Back</a>
+                <a class="button primary" href="index.php">Back</a>
             </div>
         </form>
     </div>
