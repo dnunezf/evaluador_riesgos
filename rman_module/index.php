@@ -10,7 +10,7 @@ $db->connect();
 $repo = new StrategyRepo($db);
 
 // ARCHIVELOG check
-$arch = $db->query("SELECT LOG_MODE FROM V$DATABASE")[0]['LOG_MODE'] ?? 'UNKNOWN';
+$arch = $db->query("SELECT LOG_MODE FROM V\$DATABASE")[0]['LOG_MODE'] ?? 'UNKNOWN';
 $strategies = $repo->listStrategies();
 ?>
 <!doctype html>
@@ -72,8 +72,8 @@ $strategies = $repo->listStrategies();
                                 ?>
                             </td>
                             <td>
-                                <a class="button" href="strategy_view.php?id=<?= (int)$s['ID'] ?>">Open</a>
-                                <a class="button" href="strategy_run.php?id=<?= (int)$s['ID'] ?>">Run now</a>
+                                <a class="button " href="strategy_view.php?id=<?= (int)$s['ID'] ?>">Open</a>
+                                <a class="button " href="strategy_run.php?id=<?= (int)$s['ID'] ?>">Run now</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
