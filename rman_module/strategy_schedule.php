@@ -17,23 +17,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mode = $_POST['mode'] ?? 'os';
     $h = (int)$_POST['hour'];
     $m = (int)$_POST['min'];
-    $days = $_POST['days'] ?? ['*']; // ['MON','TUE'] or ['*']
-
+    $days = $_POST['days'] ?? ['*'];
     $scriptPath = $config['paths']['work_dir'] . '/' . $st['CODE'];
     $logPath    = $config['paths']['work_dir'] . '/' . preg_replace('/\.rma[n]?$/i', '.log', $st['CODE']);
     @mkdir($config['paths']['work_dir'], 0775, true);
     if (!file_exists($scriptPath)) file_put_contents($scriptPath, "# Placeholder. Run once to materialize template.");
-
     $cmd = $scheduler->buildCommand($scriptPath, $logPath);
-
     if ($mode === 'os') {
-        // Cron-style: m h * * DOW
         $dow = ($days === ['*']) ? '*' : implode(',', array_map('strtoupper', $days));
         $cron = sprintf('%02d %02d * * %s %s', $m, $h, $dow, $cmd);
         $detail = $scheduler->createOsSchedule("RMAN_$id", $cmd, "$cron");
         $msg = "OS scheduler entry prepared:\n" . $detail['detail'];
     } else {
-        // Oracle Scheduler repeat interval, e.g. FREQ=DAILY;BYHOUR=16;BYMINUTE=0;BYDAY=MON,WED,FRI
         $byday = ($days === ['*']) ? '' : ';BYDAY=' . implode(',', array_map('strtoupper', $days));
         $ri = sprintf('FREQ=DAILY;BYHOUR=%d;BYMINUTE=%d%s', $h, $m, $byday);
         $scheduler->createOracleScheduler($db, "RMAN_JOB_$id", $cmd, $ri);
@@ -52,11 +47,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <div class="wrap">
-        <h1>Schedule “<?= htmlspecialchars($st['NAME']) ?>”</h1>
-        <?php if (!empty($msg)): ?><div class="card">
-                <pre><?= htmlspecialchars($msg) ?></pre>
-            </div><?php endif; ?>
+    <header class="appbar">
+        <div class="inner">
+            <div class="brand">
+                <div class="logo">S</div>
+                <div>Schedule</div>
+            </div>
+            <div class="right"><a class="button ghost" href="strategy_view.php?id=<?= $id ?>">← Back</a></div>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <div class="page-title">
+            <h1>Schedule “<?= htmlspecialchars($st['NAME']) ?>”</h1>
+            <p class="subtitle">Choose OS cron or Oracle Scheduler.</p>
+        </div>
+
+        <?php if (!empty($msg)): ?>
+            <div class="card">
+                <pre class="small"><?= htmlspecialchars($msg) ?></pre>
+            </div>
+        <?php endif; ?>
 
         <form class="card" method="post">
             <div class="grid cols-2">
@@ -73,7 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="number" name="hour" min="0" max="23" value="16" required>
                         <input type="number" name="min" min="0" max="59" value="0" required>
                     </div>
+                    <div class="help">Example: <span class="kbd">16:00</span> daily.</div>
                 </div>
+
                 <div>
                     <label>Days</label>
                     <div class="grid cols-2">
@@ -84,12 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
             </div>
-            <div>
+
+            <div class="btn-row">
                 <button class="button primary" type="submit">Create Schedule</button>
-                <a class="button" href="strategy_view.php?id=<?= $id ?>">Back</a>
+                <a class="button ghost" href="strategy_view.php?id=<?= $id ?>">Cancel</a>
             </div>
         </form>
-    </div>
+    </main>
 </body>
 
 </html>

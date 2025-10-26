@@ -9,7 +9,6 @@ $db = new OracleClient($config['oracle']);
 $db->connect();
 $repo = new StrategyRepo($db);
 
-// ARCHIVELOG check
 $arch = $db->query("SELECT LOG_MODE FROM V\$DATABASE")[0]['LOG_MODE'] ?? 'UNKNOWN';
 $strategies = $repo->listStrategies();
 ?>
@@ -24,25 +23,39 @@ $strategies = $repo->listStrategies();
 </head>
 
 <body>
-    <div class="wrap">
-        <h1>RMAN Backup Strategies</h1>
-        <p class="small">Database log mode:
-            <?php if ($arch === 'ARCHIVELOG'): ?>
-                <span class="badge ok">ARCHIVELOG</span>
-            <?php else: ?>
-                <span class="badge warn">NOT ARCHIVELOG</span>
-                <?php if ($config['safety']['require_archivelog']): ?>
-                    <span class="small">Hot backups may be unsafe.</span>
-                <?php endif; ?>
-            <?php endif; ?>
-        </p>
+    <!-- App bar -->
+    <header class="appbar">
+        <div class="inner">
+            <div class="brand">
+                <div class="logo">R</div>
+                <div>RMAN Strategies <small>Oracle 21c XE</small></div>
+            </div>
+            <div class="right subtitle">Module catalog & run console</div>
+        </div>
+    </header>
 
-        <div class="card">
-            <a class="button primary" href="strategy_new.php">Create Strategy</a>
+    <main class="wrap">
+        <div class="page-title">
+            <h1>Backup Catalog</h1>
+            <div class="btn-row">
+                <a class="button ghost" href="../index.php" title="Back to site">← Back</a>
+                <a class="button primary" href="strategy_new.php">＋ Create Strategy</a>
+            </div>
+        </div>
+
+        <div class="card header-card">
+            <div class="badge <?= $arch === 'ARCHIVELOG' ? 'ok' : 'warn' ?>">
+                <span class="badge-dot" style="background:<?= $arch === 'ARCHIVELOG' ? '#22c55e' : '#f59e0b' ?>"></span>
+                <?= $arch === 'ARCHIVELOG' ? 'ARCHIVELOG' : 'NOT ARCHIVELOG' ?>
+            </div>
+            <span class="small">
+                <?= $arch === 'ARCHIVELOG'
+                    ? 'Hot backups supported.'
+                    : (($config['safety']['require_archivelog'] ?? false) ? 'Hot backups may be unsafe.' : ''); ?>
+            </span>
         </div>
 
         <div class="card">
-            <h2>Catalog</h2>
             <table class="table">
                 <thead>
                     <tr>
@@ -51,36 +64,52 @@ $strategies = $repo->listStrategies();
                         <th>Type</th>
                         <th>Priority</th>
                         <th>Last Status</th>
-                        <th>Actions</th>
+                        <th class="right">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($strategies as $s): ?>
                         <tr>
-                            <td><?= htmlspecialchars($s['CODE']) ?></td>
+                            <td><code><?= htmlspecialchars($s['CODE']) ?></code></td>
                             <td><?= htmlspecialchars($s['NAME']) ?></td>
-                            <td><?= htmlspecialchars($s['TYPE']) ?></td>
-                            <td><?= htmlspecialchars($s['PRIORITY']) ?></td>
-                            <td class="small">
+                            <td><span class="badge"><?= htmlspecialchars($s['TYPE']) ?></span></td>
+                            <td>
                                 <?php
-                                $row = $db->query("SELECT STATUS, ENDED_AT FROM RBACKUP_RUN WHERE STRATEGY_ID=:id ORDER BY STARTED_AT DESC FETCH FIRST 1 ROWS ONLY", [':id' => $s['ID']]);
+                                $prio = htmlspecialchars($s['PRIORITY']);
+                                $cls = $prio === 'CRITICAL' ? 'err' : ($prio === 'HIGH' ? 'warn' : '');
+                                ?>
+                                <span class="badge <?= $cls ?>"><?= $prio ?></span>
+                            </td>
+                            <td>
+                                <?php
+                                $row = $db->query(
+                                    "SELECT STATUS, ENDED_AT FROM RBACKUP_RUN WHERE STRATEGY_ID=:id ORDER BY STARTED_AT DESC FETCH FIRST 1 ROWS ONLY",
+                                    [':id' => $s['ID']]
+                                );
                                 if ($row) {
                                     $st = $row[0]['STATUS'];
                                     $cls = $st === 'SUCCESS' ? 'ok' : ($st === 'FAILED' ? 'err' : 'warn');
-                                    echo "<span class='badge $cls'>" . htmlspecialchars($st) . "</span>";
-                                } else echo '<span class="badge">N/A</span>';
+                                    echo "<span class='badge $cls'><span class=\"badge-dot\" style=\"background:"
+                                        . ($cls === 'ok' ? '#22c55e' : ($cls === 'err' ? '#ef4444' : '#f59e0b'))
+                                        . "\"></span>" . htmlspecialchars($st) . "</span>";
+                                } else {
+                                    echo '<span class="badge">N/A</span>';
+                                }
                                 ?>
                             </td>
-                            <td>
-                                <a class="button " href="strategy_view.php?id=<?= (int)$s['ID'] ?>">Open</a>
-                                <a class="button " href="strategy_run.php?id=<?= (int)$s['ID'] ?>">Run now</a>
+                            <td class="right">
+                                <div class="actions">
+                                    <a class="button" href="strategy_view.php?id=<?= (int)$s['ID'] ?>">Open</a>
+                                    <a class="button success" href="strategy_run.php?id=<?= (int)$s['ID'] ?>">Run now</a>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
-    </div>
+    </main>
+    <footer class="wrap small">Powered by RMAN • UI refresh only</footer>
     <script src="assets/app.js"></script>
 </body>
 
