@@ -109,4 +109,13 @@ final class StrategyRepo
             [':rid' => $runId, ':lvl' => $level, ':msg' => $msg]
         );
     }
+
+    public function deleteStrategy(int $id): void
+    {
+        $this->db->exec(
+            "DELETE FROM RBACKUP_STRATEGY
+              WHERE ID = :id",
+            [':id' => $id]
+        );
+    }
 }

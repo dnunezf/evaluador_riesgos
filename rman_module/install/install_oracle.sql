@@ -54,3 +54,10 @@ FROM RBACKUP_STRATEGY s;
 
 -- Grants (adjust to your schema/user)
 -- GRANT SELECT, INSERT, UPDATE, DELETE ON RBACKUP_* TO <APP_USER>;
+
+--quick drop
+
+drop table RBACKUP_RUN;
+drop table RBACKUP_LOG;
+drop table RBACKUP_STRATEGY;
+drop view V_RBACKUP_LATEST;

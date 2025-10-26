@@ -61,6 +61,7 @@ $runs = $db->query("SELECT * FROM RBACKUP_RUN WHERE STRATEGY_ID=:id ORDER BY STA
                 <div class="btn-row">
                     <a class="button success" href="strategy_run.php?id=<?= $id ?>">Run now</a>
                     <a class="button" href="strategy_schedule.php?id=<?= $id ?>">Schedule</a>
+                    <a class="button ghost" href="strategy_delete.php?id=<?= $id ?>">Delete</a>
                     <a class="button ghost" href="index.php">Back</a>
                 </div>
             </div>

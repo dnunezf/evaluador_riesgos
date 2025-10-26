@@ -1,0 +1,13 @@
+#config
+/config/
+config/
+
+#rman config
+/rman_module/config/
+rman_module/config/
+
+#rman work
+
+/rman_module/work/
+rman_module/work/
+rman_module/config/config.php

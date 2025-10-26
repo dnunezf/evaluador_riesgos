@@ -101,6 +101,7 @@ $strategies = $repo->listStrategies();
                                 <div class="actions">
                                     <a class="button" href="strategy_view.php?id=<?= (int)$s['ID'] ?>">Open</a>
                                     <a class="button success" href="strategy_run.php?id=<?= (int)$s['ID'] ?>">Run now</a>
+                                    <a class="button ghost" href="strategy_delete.php?id=<?= (int)$s['ID'] ?>">Delete</a>
                                 </div>
                             </td>
                         </tr>
