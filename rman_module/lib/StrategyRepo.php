@@ -112,6 +112,26 @@ final class StrategyRepo
 
     public function deleteStrategy(int $id): void
     {
+        $runIds = $this->db->query(
+            "SELECT ID
+               FROM RBACKUP_RUN
+              WHERE STRATEGY_ID = :id",
+            [':id' => $id]
+        );
+        
+        foreach ($runIds as $runId) {
+            $this->db->exec(
+                "DELETE FROM RBACKUP_LOG
+                  WHERE RUN_ID = :rid",
+                [':rid' => $runId['ID']]
+            );
+        }
+
+        $this->db->exec(
+            "DELETE FROM RBACKUP_RUN
+              WHERE STRATEGY_ID = :id",
+            [':id' => $id]
+        );
         $this->db->exec(
             "DELETE FROM RBACKUP_STRATEGY
               WHERE ID = :id",
