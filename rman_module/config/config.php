@@ -33,7 +33,7 @@ return [
     ],
     'rman' => [
         'username' => 'C##RMAN',
-        'password' => 'rman_pass',   // o el nuevo si cambiaste
-        'tns'      => 'localhost/xe',  // servicio ROOT
+        'password' => 'rman_pass',
+        'tns'      => 'localhost/xe',
     ],
 ];
