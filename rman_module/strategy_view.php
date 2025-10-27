@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 $config = require __DIR__ . '/config/config.php';
 require __DIR__ . '/lib/OracleClient.php';
@@ -14,14 +13,21 @@ $runs = $db->query("SELECT * FROM RBACKUP_RUN WHERE STRATEGY_ID=:id ORDER BY STA
 ?>
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Strategy <?= htmlspecialchars($s['CODE']) ?></title>
     <link rel="stylesheet" href="assets/styles.css">
+    <script>
+        // Auto-refresh cada 15s cuando la pestaña está visible.
+        document.addEventListener('DOMContentLoaded', () => {
+            const REFRESH_MS = 15000;
+            setInterval(() => {
+                if (!document.hidden) location.reload();
+            }, REFRESH_MS);
+        });
+    </script>
 </head>
-
 <body>
 <header class="appbar">
     <div class="inner">
@@ -39,7 +45,7 @@ $runs = $db->query("SELECT * FROM RBACKUP_RUN WHERE STRATEGY_ID=:id ORDER BY STA
 
 <main class="wrap">
     <div class="page-title">
-        <h1><?= htmlspecialchars($s['CODE']) ?></h1>
+        <h1><?= htmlspecialchars($s['CODE']) ?> <span class="small">catalog & history</span></h1>
         <p class="subtitle">Review configuration and execution history.</p>
     </div>
 
@@ -47,12 +53,17 @@ $runs = $db->query("SELECT * FROM RBACKUP_RUN WHERE STRATEGY_ID=:id ORDER BY STA
         <div>
             <p><b>Type:</b> <?= htmlspecialchars($s['TYPE']) ?><?= $s['TYPE'] === 'INCREMENTAL' ? ' L' . (int)$s['INCREMENTAL_LVL'] : '' ?></p>
             <p><b>Output:</b> <code><?= htmlspecialchars($s['OUTPUT_DIR']) ?></code></p>
-            <p><b>Options:</b> ctrlfile <?= htmlspecialchars($s['INCLUDE_CTRLFILE']) ?>, archivelogs <?= htmlspecialchars($s['INCLUDE_ARCHIVE']) ?>, compression <?= htmlspecialchars($s['COMPRESSION']) ?>, enc <?= htmlspecialchars($s['ENCRYPTION']) ?></p>
+            <p><b>Options:</b>
+                ctrlfile <?= $s['INCLUDE_CTRLFILE'] ?>,
+                archivelogs <?= $s['INCLUDE_ARCHIVE'] ?>,
+                compression <?= $s['COMPRESSION'] ?>,
+                enc <?= $s['ENCRYPTION'] ?>
+            </p>
         </div>
         <div>
             <?php if ($s['OBJECT_SCOPE']): ?>
                 <label>Object scope</label>
-                <pre class="small" style="margin-top:6px"><?= htmlspecialchars((string)$s['OBJECT_SCOPE']) ?></pre>
+                <pre class="small" style="margin-top:6px"><?= htmlspecialchars($s['OBJECT_SCOPE']) ?></pre>
             <?php else: ?>
                 <p class="small">Object scope: N/A</p>
             <?php endif; ?>
@@ -63,6 +74,7 @@ $runs = $db->query("SELECT * FROM RBACKUP_RUN WHERE STRATEGY_ID=:id ORDER BY STA
                 <a class="button ghost" href="strategy_delete.php?id=<?= $id ?>">Delete</a>
                 <a class="button ghost" href="index.php">Back</a>
             </div>
+            <p class="small" style="opacity:.7;margin-top:8px">This page auto-refreshes every 15s to show scheduled runs as they start.</p>
         </div>
     </div>
 
@@ -80,16 +92,21 @@ $runs = $db->query("SELECT * FROM RBACKUP_RUN WHERE STRATEGY_ID=:id ORDER BY STA
             <tbody>
             <?php foreach ($runs as $r): ?>
                 <tr>
-                    <td><?= htmlspecialchars((string)$r['STARTED_AT']) ?></td>
-                    <td><?= $r['ENDED_AT'] ? htmlspecialchars((string)$r['ENDED_AT']) : '-' ?></td>
+                    <td><?= $r['STARTED_AT'] ?></td>
+                    <td><?= $r['ENDED_AT'] ?: '-' ?></td>
                     <td>
-                        <?php $st = (string)$r['STATUS'];
-                        $cls = $st === 'SUCCESS' ? 'ok' : ($st === 'FAILED' ? 'err' : 'warn'); ?>
-                        <span class="badge <?= $cls ?>"><span class="badge-dot" style="background:<?= $cls === 'ok' ? '#22c55e' : ($cls === 'err' ? '#ef4444' : '#f59e0b') ?>"></span><?= htmlspecialchars($st) ?></span>
+                        <?php
+                        $st = $r['STATUS'];
+                        $cls = $st === 'SUCCESS' ? 'ok' : ($st === 'FAILED' ? 'err' : 'warn');
+                        ?>
+                        <span class="badge <?= $cls ?>">
+              <span class="badge-dot" style="background:<?= $cls === 'ok' ? '#22c55e' : ($cls === 'err' ? '#ef4444' : '#f59e0b') ?>"></span>
+              <?= htmlspecialchars($st) ?>
+            </span>
                     </td>
                     <td>
                         <?php if ($r['LOG_PATH']): ?>
-                            <code class="small"><?= htmlspecialchars((string)$r['LOG_PATH']) ?></code>
+                            <code class="small"><?= htmlspecialchars($r['LOG_PATH']) ?></code>
                         <?php else: ?>
                             N/A
                         <?php endif; ?>
@@ -97,14 +114,11 @@ $runs = $db->query("SELECT * FROM RBACKUP_RUN WHERE STRATEGY_ID=:id ORDER BY STA
                 </tr>
             <?php endforeach; ?>
             <?php if (!$runs): ?>
-                <tr>
-                    <td colspan="4" class="small">No runs yet.</td>
-                </tr>
+                <tr><td colspan="4" class="small">No runs yet.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>
     </div>
 </main>
 </body>
-
 </html>

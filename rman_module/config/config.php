@@ -31,9 +31,19 @@ return [
     'safety' => [
         'require_archivelog' => true,
     ],
+
     'rman' => [
         'username' => 'C##RMAN',
         'password' => 'rman_pass',
         'tns'      => 'localhost/xe',
+    ],
+
+    // ➜ NUEVO: configuración para que el Oracle Scheduler dispare la URL del runner
+    'scheduler' => [
+        // Cambia esta URL si tu host no es el mismo
+        'runner_url'      => 'http://localhost/evaluador_riesgos/rman_module/strategy_run.php?id=',
+        // true => el job llamará la URL anterior (así se cataloga el run)
+        // false => el job ejecuta RMAN directo (no cataloga en la app)
+        'use_http_runner' => true,
     ],
 ];
